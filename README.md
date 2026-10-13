@@ -70,3 +70,19 @@ module.exports = {
     }
 };
 
+### // --- MODULE (module es)
+```javascript
+export default {
+    command: ['sticker', 's', 'stiker'],
+    description: 'Mengubah gambar/video menjadi stiker WhatsApp',
+    
+    async execute({ sock, msg, from, args, fullText, loadConfig }) {
+        try {
+            // Logika plugin
+            await sock.sendMessage(from, { text: '🌸 Fitur stiker sedang diproses...' }, { quoted: msg });
+        } catch (err) {
+            // Lempar error agar ditangani oleh AI Auto-Healer Engine
+            throw err;
+        }
+    }
+};
