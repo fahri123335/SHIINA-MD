@@ -19,12 +19,16 @@
 
 ---
 
-## 🌟 Key Features
-* ** Enc v1 Bytecode Security:** Logika inti bot dikompilasi menjadi bytecode (`handler.jsc`), melindungi source code dari modifikasi tidak sah.
-* ** Dynamic Plugin Store:** Unduh, perbarui, dan hapus plugin langsung melalui perintah WhatsApp (`plug install`, `plug dell`, `plug list`).
-* ** Dual Module Compatibility:** Plugin loader mendukung format **CommonJS (`module.exports`)** maupun **ES Modules (`export default`)** secara fleksibel.
-* ** Interactive Multi-Key Management:** Deteksi otomatis kebutuhan *API Key* dari plugin yang diinstal dengan interaksi terminal interaktif yang tersimpan rapi ke `config.txt`.
-* ** AI Auto-Healer Engine:** Mendeteksi error pada plugin secara real-time, memperbaiki kode yang rusak menggunakan Gemini AI, lalu melakukan *retry* perintah secara otomatis.
+##  Key Features
+*  Enc v1 Bytecode Security:** Logika inti bot dikompilasi menjadi bytecode (`handler.jsc`), melindungi source code dari modifikasi tidak sah.
+*  Dynamic Plugin Store:** Unduh, perbarui, dan hapus plugin langsung melalui perintah WhatsApp (`plug install`, `plug dell`, `plug list`).
+*  Dual Module Compatibility:** Plugin loader mendukung format **CommonJS (`module.exports`)** maupun **ES Modules (`export default`)** secara fleksibel.
+*  Interactive Multi-Key Management:** Deteksi otomatis kebutuhan *API Key* dari plugin yang diinstal dengan interaksi terminal interaktif yang tersimpan rapi ke `config.txt`.
+*  AI Auto-Healer Engine:** Mendeteksi error pada plugin secara real-time, memperbaiki kode yang rusak menggunakan Gemini AI, lalu melakukan *retry* perintah secara otomatis.
 
 ---
 
+## PEMBUAT BOT 
+
+**the bot create by**
+​╰ finn
