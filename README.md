@@ -28,7 +28,7 @@
 
 ---
 
-## PEMBUAT BOT 
+## PEMBUAT BOT
 
-**the bot create by**
-​╰ finn
+**the bot create by**<br>╰ finn
+
