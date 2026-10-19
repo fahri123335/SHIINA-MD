@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 import { spawn } from 'child_process';
-import { generateWAMessageFromContent } from '@sairidev/baileys-new';
+import { generateWAMessageFromContent } from '@itsliaaa/baileys';
 
 const PLAY_API = process.env.PLAY_API || 'https://api.jerexd.my.id/api/downloader/play';
 const PLAY_API_KEY = process.env.PLAY_API_KEY || 'XVsu1z4Fzd90UeD9';
@@ -25,7 +25,7 @@ function pick(obj, keys) {
 
 function cleanTitle(raw, channel) {
     let t = String(raw || '').split('|')[0].trim();
-    t = t.replace(/\s*[\(\[][^)\]]*(official|video|audio|lyric|lirik|remaster|4k|hd|mv)[^)\]]*[\)\]]/gi, '').trim();
+    t = t.replace(/\s*[\(\[][^)\]]*(official\vert{}video\vert{}audio\vert{}lyric\vert{}lirik\vert{}remaster\vert{}4k\vert{}hd\vert{}mv)[^)\]]*[\)\]]/gi, '').trim();
     const idx = t.indexOf(' - ');
     if (idx > 0) return { title: t.slice(idx + 3).trim() || t, artist: t.slice(0, idx).trim() };
     return { title: t, artist: channel || null };
@@ -180,8 +180,8 @@ t.addEventListener('click',function(e){
 </script>`;
 }
 
-// Ukuran audio yang ditanam di player. Pesan HTML terlalu besar = player tidak tampil di WhatsApp.
-const EMBED_TARGET = (Number(process.env.PLAYER_EMBED_KB) || 150) * 1024; // bisa diubah lewat env PLAYER_EMBED_KB
+const EMBED_TARGET = (Number(process.env.PLAYER_EMBED_KB) || 150) * 1024;
+
 async function runFfmpeg(args, buffer) {
     return new Promise((resolve) => {
         try {
@@ -202,7 +202,6 @@ async function shrinkAudio(buffer) {
         if (!out) return null;
         if (out.length <= EMBED_TARGET) return { buffer: out, trimmed: false };
     }
-    // masih terlalu besar -> potong jadi pratinjau di awal lagu
     const seconds = Math.floor((EMBED_TARGET * 8) / 16000);
     const clip = await runFfmpeg(['-vn', '-ac', '1', '-ar', '22050', '-b:a', '16k', '-t', String(seconds), '-f', 'mp3'], buffer);
     return clip ? { buffer: clip, trimmed: true } : null;
@@ -227,7 +226,6 @@ async function sendHtmlRich(sock, jid, html, quoted, label = 'Spotify Player') {
         }]
     };
     const base64Data = Buffer.from(JSON.stringify(responseData)).toString('base64');
-    console.log(`[PLAYER] ukuran HTML ${(html.length / 1024).toFixed(0)} KB, pesan ${(base64Data.length / 1024).toFixed(0)} KB`);
 
     const content = generateWAMessageFromContent(jid, {
         botForwardedMessage: {
@@ -259,14 +257,12 @@ export async function handlePlay(sock, sender, mek, args) {
         const query = (Array.isArray(args) ? args.join(' ') : String(args || '')).trim();
         if (!query) {
             await sendReaction('⛔');
-            await sock.sendMessage(sender, { text: 'Masukkan judul lagu!\nContoh: play Ada apa dengan cinta' }, { quoted: mek });
+            await sock.sendMessage(sender, { text: 'Masukkan judul lagu!\nContoh: .play Ada apa dengan cinta' }, { quoted: mek });
             return;
         }
 
-        // Reaksi Loading ⏳
         await sendReaction('⏳');
 
-        // 1) API play (cari + download lagu)
         const songJson = await fetchJson(buildSongUrl(query));
         const song = normalizeSong(songJson);
         if (!song || !song.audioUrl) {
@@ -277,7 +273,6 @@ export async function handlePlay(sock, sender, mek, args) {
         const title = song.title || query;
         const artist = song.artist || '-';
 
-        // 2) Ambil audio & cover
         const audioRes = await fetch(song.audioUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } });
         if (!audioRes.ok) throw new Error('AUDIO_HTTP_' + audioRes.status);
         const audioBuffer = Buffer.from(await audioRes.arrayBuffer());
@@ -293,7 +288,6 @@ export async function handlePlay(sock, sender, mek, args) {
             } catch {}
         }
 
-        // 3) Siapkan audio untuk ditanam di player
         let embedBuffer = audioBuffer;
         if (audioBuffer.length > EMBED_TARGET) {
             const small = await shrinkAudio(audioBuffer);
@@ -301,7 +295,6 @@ export async function handlePlay(sock, sender, mek, args) {
         }
         const embedAudio = embedBuffer.length <= EMBED_TARGET * 1.5;
 
-        // 4) Kirim Player HTML Rich
         let richSent = false;
         try {
             const html = buildPlayerHtml({
@@ -314,12 +307,10 @@ export async function handlePlay(sock, sender, mek, args) {
             console.error('Player HTML gagal:', richErr.message);
         }
 
-        // Fallback audio biasa jika rich gagal/terlalu besar
         if (!richSent || !embedAudio) {
             await sock.sendMessage(sender, { audio: audioBuffer, mimetype: 'audio/mpeg' }, { quoted: mek });
         }
 
-        // Reaksi Selesai 🍃
         await sendReaction('🍃');
     } catch (e) {
         console.error(e);
@@ -328,13 +319,14 @@ export async function handlePlay(sock, sender, mek, args) {
     }
 }
 
-// ==================== PLUGIN ====================
+// ==================== PLUGIN EXPORT ====================
 export default {
     name: 'play',
     command: ['play'],
     category: 'musik',
     desc: 'Putar lagu dari judul: play <judul lagu>',
-    async run({ sock, remoteJid, mek, args, reply }) {
-        await handlePlay(sock, remoteJid, mek, args, reply);
+    async run(ctx) {
+        await handlePlay(ctx.sock, ctx.remoteJid, ctx.mek, ctx.args);
     }
 };
+
